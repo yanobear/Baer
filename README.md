@@ -25,7 +25,12 @@ The name "Bær" is derived from the Nordic word meaning "to bear" or "to carry".
 
 ## Getting Started
 
+### Download APK
+Download the compiled app package directly:
+- [baer.apk](app/build/outputs/apk/debug/baer.apk)
+
+### Build From Source
 1. Clone this repository.
 2. Open the project in Android Studio.
 3. Allow Gradle to sync and download dependencies.
-4. Click Run to install and launch the application on an emulator or a connected Android device.
+4. Click Run to build, install, and launch the application on an emulator or a connected Android device.
