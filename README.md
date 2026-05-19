@@ -2,6 +2,8 @@
 
 A local-first, offline workout tracker designed for high legibility, accessibility, and simplicity.
 
+This is a personal project made selfishly for myself and my own tastes.
+
 The name "Bær" is derived from the Nordic word meaning "to bear" or "to carry".
 
 ## Features
