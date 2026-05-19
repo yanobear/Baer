@@ -27,7 +27,7 @@ The name "Bær" is derived from the Nordic word meaning "to bear" or "to carry".
 
 ### Download APK
 Download the compiled app package directly:
-- [baer.apk](app/build/outputs/apk/debug/baer.apk)
+- [Download baer.apk (Direct Link)](https://github.com/yanobear/Baer/raw/main/app/build/outputs/apk/debug/baer.apk)
 
 ### Build From Source
 1. Clone this repository.
