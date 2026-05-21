@@ -414,7 +414,7 @@ fun HomeScreen(
                                                 Icon(
                                                     Icons.Default.Delete,
                                                     contentDescription = "Delete Session",
-                                                    tint = Color.Red.copy(alpha = 0.7f),
+                                                    tint = ObsidianPurple,
                                                     modifier = Modifier.size(20.dp)
                                                 )
                                             }
