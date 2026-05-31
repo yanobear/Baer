@@ -422,10 +422,23 @@ fun HomeScreen(
                                     }
                                     Spacer(modifier = Modifier.height(8.dp))
 
-                                    workouts.forEach { workout ->
-                                        WorkoutDetailItem(workout = workout, onClick = { editingSet = workout })
-                                        Spacer(modifier = Modifier.height(4.dp))
-                                    }
+                                     val workoutsByMuscle = workouts.groupBy { it.muscleGroup }
+                                     workoutsByMuscle.forEach { (muscle, muscleWorkouts) ->
+                                         Text(
+                                             text = muscle.uppercase(),
+                                             fontFamily = OpenDyslexic,
+                                             fontSize = 11.sp,
+                                             fontWeight = FontWeight.ExtraBold,
+                                             color = ObsidianPurple.copy(alpha = 0.8f),
+                                             modifier = Modifier.padding(start = 4.dp, top = 8.dp, bottom = 4.dp),
+                                             letterSpacing = 1.sp
+                                         )
+                                         muscleWorkouts.forEach { workout ->
+                                             WorkoutDetailItem(workout = workout, onClick = { editingSet = workout })
+                                             Spacer(modifier = Modifier.height(4.dp))
+                                         }
+                                         Spacer(modifier = Modifier.height(8.dp))
+                                     }
                                 }
                             }
                         }
@@ -712,16 +725,45 @@ fun WorkoutDetailItem(workout: SessionWorkoutDetail, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(text = workout.exerciseName, fontFamily = OpenDyslexic, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Text(text = workout.muscleGroup, fontFamily = OpenDyslexic, fontSize = 12.sp, color = ObsidianTextDim)
+                Text(
+                    text = workout.exerciseName,
+                    fontFamily = OpenDyslexic,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 14.sp,
+                    color = Color.White
+                )
             }
-            Text(
-                text = "${workout.weight}kg x ${workout.reps}",
-                fontFamily = OpenDyslexic,
-                fontWeight = FontWeight.Medium,
-                fontSize = 14.sp,
-                color = ObsidianPurple
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
+                Text(
+                    text = if (workout.weight % 1f == 0f) "${workout.weight.toInt()} kg" else "${workout.weight} kg",
+                    fontFamily = OpenDyslexic,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    color = ObsidianPurple,
+                    modifier = Modifier.width(80.dp),
+                    textAlign = TextAlign.End
+                )
+                Text(
+                    text = "x",
+                    fontFamily = OpenDyslexic,
+                    fontSize = 12.sp,
+                    color = ObsidianTextDim,
+                    modifier = Modifier.width(16.dp),
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = "${workout.reps}",
+                    fontFamily = OpenDyslexic,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 14.sp,
+                    color = ObsidianPurple,
+                    modifier = Modifier.width(32.dp),
+                    textAlign = TextAlign.Start
+                )
+            }
         }
     }
 }

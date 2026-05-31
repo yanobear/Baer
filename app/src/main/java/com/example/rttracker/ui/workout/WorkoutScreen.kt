@@ -30,6 +30,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.text.style.TextAlign
 import com.example.rttracker.ui.theme.ObsidianPurple
 import com.example.rttracker.ui.theme.ObsidianSurface
 import com.example.rttracker.ui.theme.ObsidianTextDim
@@ -66,6 +67,7 @@ fun WorkoutScreenPreview() {
             onDeleteSet = { _, _ -> },
             onUpdateSet = { _, _, _, _ -> },
             onFinishWorkout = {},
+            onCancelWorkout = {},
             onAddExercise = { _, _ -> },
             onDeleteExercise = {}
         )
@@ -174,11 +176,95 @@ fun WorkoutScreen(
     onDeleteSet: (Int, Int) -> Unit,
     onUpdateSet: (Int, Int, String?, String?) -> Unit,
     onFinishWorkout: () -> Unit,
+    onCancelWorkout: () -> Unit,
     onAddExercise: (String, String) -> Unit,
     onDeleteExercise: (Exercise) -> Unit,
-    customWorkoutDate: Long? = null
+    customWorkoutDate: Long? = null,
+    isEditing: Boolean = false
 ) {
     var showAddDialog by remember { mutableStateOf(false) }
+    var showCancelConfirm by remember { mutableStateOf(false) }
+
+    if (showCancelConfirm) {
+        androidx.compose.ui.window.Dialog(onDismissRequest = { showCancelConfirm = false }) {
+            Card(
+                colors = CardDefaults.cardColors(containerColor = ObsidianSurface),
+                shape = RoundedCornerShape(24.dp),
+                border = androidx.compose.foundation.BorderStroke(1.dp, ObsidianPurple.copy(alpha = 0.3f)),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Discard changes?",
+                        fontFamily = OpenDyslexic,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = "Are you sure you want to discard your changes? This action cannot be undone.",
+                        fontFamily = OpenDyslexic,
+                        fontSize = 12.sp,
+                        color = ObsidianTextDim,
+                        textAlign = TextAlign.Center,
+                        lineHeight = 18.sp
+                    )
+                    
+                    Spacer(modifier = Modifier.height(24.dp))
+                    
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedButton(
+                            onClick = { showCancelConfirm = false },
+                            shape = RoundedCornerShape(12.dp),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, ObsidianTextDim.copy(alpha = 0.5f)),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "Keep Editing",
+                                fontFamily = OpenDyslexic,
+                                color = ObsidianTextDim,
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+                        
+                        Button(
+                            onClick = {
+                                showCancelConfirm = false
+                                onCancelWorkout()
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = ObsidianPurple),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 4.dp, vertical = 8.dp),
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "Discard",
+                                fontFamily = OpenDyslexic,
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 12.sp,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
     var activeTab by remember { mutableStateOf(0) } // 0 = Existing, 1 = Custom
     var searchQuery by remember { mutableStateOf("") }
     var newExerciseName by remember { mutableStateOf("") }
@@ -571,52 +657,87 @@ fun WorkoutScreen(
             allSets.isNotEmpty() && allSets.all { set -> set.weight.isNotBlank() && set.reps.isNotBlank() }
         }
 
-        Button(
-            onClick = onFinishWorkout,
-            enabled = canFinish,
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 12.dp),
-            shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                disabledContainerColor = Color.Transparent
-            ),
-            contentPadding = PaddingValues()
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
+            OutlinedButton(
+                onClick = {
+                    val hasChanges = exercises.isNotEmpty()
+                    if (hasChanges) {
+                        showCancelConfirm = true
+                    } else {
+                        onCancelWorkout()
+                    }
+                },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = if (canFinish) {
-                            androidx.compose.ui.graphics.Brush.horizontalGradient(
-                                colors = listOf(ObsidianPurple, ObsidianAccent)
-                            )
-                        } else {
-                            androidx.compose.ui.graphics.Brush.horizontalGradient(
-                                colors = listOf(
-                                    ObsidianSurface,
-                                    ObsidianSurface
-                                )
-                            )
-                        },
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .border(
-                        width = 1.dp,
-                        color = if (canFinish) Color.Transparent else ObsidianTextDim.copy(alpha = 0.15f),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                    .padding(vertical = 14.dp),
-                contentAlignment = Alignment.Center
+                    .weight(1f)
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.dp,
+                    color = ObsidianTextDim.copy(alpha = 0.4f)
+                ),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = ObsidianTextDim)
             ) {
                 Text(
-                    text = "Finish Workout",
+                    text = "Cancel",
                     fontFamily = OpenDyslexic,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 16.sp,
-                    color = if (canFinish) Color.Black else ObsidianTextDim.copy(alpha = 0.5f)
+                    fontSize = 15.sp,
+                    color = ObsidianTextDim
                 )
+            }
+
+            Button(
+                onClick = onFinishWorkout,
+                enabled = canFinish,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent
+                ),
+                contentPadding = PaddingValues()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = if (canFinish) {
+                                androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                    colors = listOf(ObsidianPurple, ObsidianAccent)
+                                )
+                            } else {
+                                androidx.compose.ui.graphics.Brush.horizontalGradient(
+                                    colors = listOf(
+                                        ObsidianSurface,
+                                        ObsidianSurface
+                                    )
+                                )
+                            },
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        .border(
+                            width = 1.dp,
+                            color = if (canFinish) Color.Transparent else ObsidianTextDim.copy(alpha = 0.15f),
+                            shape = RoundedCornerShape(12.dp)
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = if (isEditing) "Save" else "Finish Workout",
+                        fontFamily = OpenDyslexic,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        color = if (canFinish) Color.Black else ObsidianTextDim.copy(alpha = 0.5f)
+                    )
+                }
             }
         }
     }

@@ -45,7 +45,7 @@ interface WorkoutDao {
         LEFT JOIN workout_sessions ON exercise_sets.sessionId = workout_sessions.id 
         WHERE (SELECT COUNT(*) FROM exercise_sets) > 0
         GROUP BY muscleGroup 
-        ORDER BY COALESCE(MAX(date), 0) ASC
+        ORDER BY COALESCE(MAX(date), 0) ASC, MAX(exercise_sets.id) ASC
     """)
     fun getMuscleGroupsDoneLeastRecently(): Flow<List<String>>
 

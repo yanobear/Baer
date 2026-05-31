@@ -223,6 +223,7 @@ fun MainAppScreen(workoutDao: com.example.rttracker.data.WorkoutDao) {
                 val exercises by workoutViewModel.exercises.collectAsState()
                 val allExercises by workoutViewModel.allExercises.collectAsState()
                 val customWorkoutDate by workoutViewModel.customWorkoutDate.collectAsState()
+                val editingSessionId by workoutViewModel.editingSessionId.collectAsState()
 
                 WorkoutScreen(
                     exercises = exercises,
@@ -241,13 +242,18 @@ fun MainAppScreen(workoutDao: com.example.rttracker.data.WorkoutDao) {
                             navController.popBackStack()
                         }
                     },
+                    onCancelWorkout = {
+                        workoutViewModel.clearWorkoutState()
+                        navController.popBackStack()
+                    },
                     onAddExercise = { name, muscleGroup ->
                         workoutViewModel.addExercise(name, muscleGroup)
                     },
                     onDeleteExercise = { exercise ->
                         workoutViewModel.deleteExercise(exercise)
                     },
-                    customWorkoutDate = customWorkoutDate
+                    customWorkoutDate = customWorkoutDate,
+                    isEditing = editingSessionId != null
                 )
             }
         }

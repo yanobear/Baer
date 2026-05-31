@@ -167,8 +167,9 @@ class WorkoutViewModel(private val workoutDao: WorkoutDao) : ViewModel() {
             }
             
             var insertedAnySet = false
+            var setOrder = 0
             _exercises.value.forEach { exerciseState ->
-                exerciseState.sets.forEachIndexed { index, set ->
+                exerciseState.sets.forEach { set ->
                     if (set.weight.isNotEmpty() && set.reps.isNotEmpty()) {
                         workoutDao.insertSet(
                             ExerciseSet(
@@ -176,7 +177,7 @@ class WorkoutViewModel(private val workoutDao: WorkoutDao) : ViewModel() {
                                 sessionId = sessionId,
                                 weight = set.weight.toFloatOrNull() ?: 0f,
                                 reps = set.reps.toIntOrNull() ?: 0,
-                                order = index
+                                order = setOrder++
                             )
                         )
                         insertedAnySet = true
